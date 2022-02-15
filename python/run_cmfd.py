@@ -1,3 +1,4 @@
+from pathlib import Path
 from oversegmentation import *
 from matching_postprocessing import generated_object_match_map
 from glob import glob
@@ -16,10 +17,8 @@ files = glob("*.png")
 def run_method(fname):
     exist_name = fname.split('testset/')[-1]
     exist_name = exist_name[:-4]
-    if os.path.isfile(f"result/{exist_name}_map.png")  \
-            and os.path.isfile(f"result/{exist_name}_final_map.png") \
-            and os.path.isfile(f'result/{exist_name}_final_map.png') \
-            and os.path.isfile(f'result/{exist_name}_matched_image.png'):
+    if os.path.isfile(f"result/{exist_name}_final_map_ids.png")  \
+            and os.path.isfile(f"result/{exist_name}_final_map.png"):
         return
 
     #img = cv2.imread(fname)
@@ -27,7 +26,7 @@ def run_method(fname):
     img_rgb = Image.open(fname)
     img_rgb = np.array(img_rgb)
 
-    # run method 
+    # run method
     forgery_map , matches, Locations = oversegmentation(fname)
 
     # Fix locations
@@ -40,17 +39,25 @@ def run_method(fname):
     p1 = np.array(p1).T
     p2 = np.array(p2).T
 
-    final_map = generated_object_match_map(forgery_map,p1, p2)
+    if len(matches) > 0:
+        final_map = generated_object_match_map(forgery_map,p1, p2)
+
+    else:
+        final_map = forgery_map
 
     fname = fname.split('testset/')[-1]
     fname = fname[:-4]
-    os.makedirs(f'result/{fname}',exist_ok=True)
+    dir_name = fname.split(Path(fname).name)[0]
+    os.makedirs(f'result/{dir_name}',exist_ok=True)
 
     forgery_map = forgery_map.astype("uint8")
     final_map = final_map.astype("uint8")
-    cv2.imwrite(f"result/{fname}_map.png",forgery_map)
-    cv2.imwrite(f"result/{fname}_final_map.png", final_map)
+    cv2.imwrite(f"result/{fname}_forgery_map.png",forgery_map)
+    cv2.imwrite(f"result/{fname}_final_map_ids.png", final_map)
     plt.imsave(f'result/{fname}_final_map.png', final_map)
 
-process_map(run_method, files, chunksize = 10, max_workers = 30)
+#for file in files[:20]:
+#    run_method(file)
+process_map(run_method, files, chunksize = 1, max_workers = 60)
+
 
