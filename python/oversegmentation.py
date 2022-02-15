@@ -46,7 +46,7 @@ def difference_angular(alpha1,alpha2):
 	return out
 
 def oversegmentation(filename):
-	#@ Return tp,fp,time,ratio
+	#@ Return Forgery Map , Match List , Locations
 
 	color=[64,0,128];
 	TR_P=2;
@@ -156,7 +156,7 @@ def oversegmentation(filename):
 
 	num_match=len(MatchList);
 	if num_match==0:
-		return;
+		return np.zeros_like(grayimage), [], []
 
 	### %Show Match Keypoints
 	"""
@@ -196,7 +196,7 @@ def oversegmentation(filename):
 	new_MatchList=np.array(MatchList)[select,:];
 	num_match=new_MatchList.shape[0];
 	if num_match==0:
-		return np.zeros_like(grayimage)
+		return np.zeros_like(grayimage), [], []
 
 	#%% Forgery Region Extraction
 	#%STEP1: new segmentation and assign segments to each matched keypoint
@@ -248,7 +248,7 @@ def oversegmentation(filename):
 		kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(7,7))
 		dil_map = cv2.morphologyEx(map.astype("uint8"), cv2.MORPH_OPEN, kernel)
 		y,x = np.where(dil_map-map>0);
-		neighbors=np.zeros(num_superpixel);
+		neighbors=np.zeros(num_superpixel+1);
 		for j in range(len(x)):
 			temp=superpixel[y[j],x[j]];
 			neighbors[temp]=1;
@@ -264,7 +264,7 @@ def oversegmentation(filename):
 			superpixel_neighbor[superpixel_select_list[i],j]=idx1[idx2[0]];
 
 	# %Compute mean color of found neighbor superpixels
-	temp= np.zeros(num_superpixel);
+	temp= np.zeros(num_superpixel+1);
 	temp[np.any(superpixel_neighbor,axis=1)] = 1;
 	temp = np.where(temp)[0];
 	for i in range(len(temp)):
@@ -294,7 +294,3 @@ def oversegmentation(filename):
 	Final_map3 = cv2.morphologyEx(Final_map2, cv2.MORPH_CLOSE, kernel)
 
 	return Final_map3 , MatchList , Locations
-	# %% Create Result
-	UltimateResult=map2RGB(Final_map3,RGBimage,color);
-	#cv2.imwrite(UltimateResult,[filename, postfix,'.jpg']);
-	plt.imsave(f'UltimateMap.png', UltimateResult)
