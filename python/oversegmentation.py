@@ -55,6 +55,9 @@ def oversegmentation(filename):
 	RGBimage=np.array(Image.open(filename)).astype("uint8")
 	M,N = RGBimage.shape[:2]
 	if len(RGBimage.shape) > 2:
+		# Discard alpha layer if exists:
+		if RGBimage.shape[2] >3:
+		     RGBimage = RGBimage[:3]
 		grayimage = cv2.cvtColor(RGBimage.astype(np.uint8), cv2.COLOR_RGB2GRAY).astype(np.float64);
 	else:
 		grayimage = RGBimage
@@ -92,10 +95,10 @@ def oversegmentation(filename):
 
 	### SIFT
 	Locations, Descriptors = sift.sift( grayimage.astype(np.float),
-										n_octaves = 5,
-										edge_thresh = 12,
-									    peak_thresh = 0.1,
-										compute_descriptor=True)
+					     n_octaves = 5,
+				            edge_thresh = 12,
+					    peak_thresh = 0.1,
+					    compute_descriptor=True)
 	#Locations[:, [1,0]] = Locations[:, [0,1]]
 
 	num_keypoint = Locations.shape[0];
@@ -270,7 +273,9 @@ def oversegmentation(filename):
 	for i in range(len(temp)):
 		#TODO debug the next repeat line
 		map=superpixel==temp[i]
-		map = np.tile(map, (3,1,1)).reshape(map.shape[0], map.shape[1],3)
+		# RGB Image is actually RGB
+		if len(RGBimage.shape) > 2:
+		    map = np.tile(map, (3,1,1)).reshape(map.shape[0], map.shape[1],3)
 		superpixel_color[temp[i]] = np.mean(RGBimage[map]);
 	#%Compare neighbors using its colors
 	Final_map2 = Final_map1.copy();
