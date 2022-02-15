@@ -219,9 +219,9 @@ def oversegmentation(filename):
 		superpixel_select[int(Match_superpixel[k,1])]=1;
 
 	superpixel_select_list= np.where(superpixel_select)[0]; #%Convert logical vector to index
-	superpixel_neighbor=np.zeros((num_superpixel,8));
-	superpixel_center=np.zeros((num_superpixel,2));
-	superpixel_color=np.zeros(num_superpixel);
+	superpixel_neighbor=np.zeros((num_superpixel+1,8));
+	superpixel_center=np.zeros((num_superpixel+1,2));
+	superpixel_color=np.zeros(num_superpixel+1);
 	# %STEP2: find neighbors of matched segments
 	# %computing the center of each superpixel
 	regions = regionprops(superpixel, intensity_image=grayimage)
