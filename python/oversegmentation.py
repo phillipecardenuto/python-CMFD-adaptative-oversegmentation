@@ -157,7 +157,7 @@ def oversegmentation(filename):
 	num_match=len(MatchList);
 	if num_match==0:
 		return;
-		
+
 	### %Show Match Keypoints
 	"""
 	if (show==1):
@@ -215,8 +215,8 @@ def oversegmentation(filename):
 		t2=new_MatchList[k,1];
 		Match_superpixel[k,0] = superpixel[int(np.round(Locations[t1,0])),int(np.round(Locations[t1,1]))];
 		Match_superpixel[k,1]=superpixel[int(np.round(Locations[t2,0])),int(np.round(Locations[t2,1]))];
-		superpixel_select[int(Match_superpixel[k,0])]=1;
-		superpixel_select[int(Match_superpixel[k,1])]=1;
+		superpixel_select[int(Match_superpixel[k,0])-1]=1;
+		superpixel_select[int(Match_superpixel[k,1])-1]=1;
 
 	superpixel_select_list= np.where(superpixel_select)[0]; #%Convert logical vector to index
 	superpixel_neighbor=np.zeros((num_superpixel,8));
@@ -225,7 +225,7 @@ def oversegmentation(filename):
 	# %STEP2: find neighbors of matched segments
 	# %computing the center of each superpixel
 	regions = regionprops(superpixel, intensity_image=grayimage)
-	for loc in regions:
+	for i, loc in enumerate(regions):
 		y,x = loc.centroid
 		superpixel_center[i,0] = y
 		superpixel_center[i,1] = x
@@ -278,8 +278,8 @@ def oversegmentation(filename):
 		s1=int(Match_superpixel[i,0])
 		s2=int(Match_superpixel[i,1])
 		for j in range(8):
-			n1=int(superpixel_neighbor[s1,j])
-			n2=int(superpixel_neighbor[s2,j])
+			n1=int(superpixel_neighbor[s1-1,j])
+			n2=int(superpixel_neighbor[s2-1,j])
 			if n1==0 or  n2==0:
 				continue;
 
