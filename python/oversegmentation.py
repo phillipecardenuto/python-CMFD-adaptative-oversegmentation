@@ -209,14 +209,14 @@ def oversegmentation(filename):
 	num_superpixel=np.max(superpixel);
 	# % Assign a superpixel number to each matched keypoint
 	Match_superpixel = np.zeros((num_match,2));#%SR
-	superpixel_select = np.zeros(num_superpixel); # %Which superpixels have match and must processed
+	superpixel_select = np.zeros(num_superpixel+1); # %Which superpixels have match and must processed
 	for k in range(num_match):
 		t1=new_MatchList[k,0];
 		t2=new_MatchList[k,1];
 		Match_superpixel[k,0] = superpixel[int(np.round(Locations[t1,0])),int(np.round(Locations[t1,1]))];
 		Match_superpixel[k,1]=superpixel[int(np.round(Locations[t2,0])),int(np.round(Locations[t2,1]))];
-		superpixel_select[int(Match_superpixel[k,0])-1]=1;
-		superpixel_select[int(Match_superpixel[k,1])-1]=1;
+		superpixel_select[int(Match_superpixel[k,0])]=1;
+		superpixel_select[int(Match_superpixel[k,1])]=1;
 
 	superpixel_select_list= np.where(superpixel_select)[0]; #%Convert logical vector to index
 	superpixel_neighbor=np.zeros((num_superpixel,8));
@@ -278,8 +278,8 @@ def oversegmentation(filename):
 		s1=int(Match_superpixel[i,0])
 		s2=int(Match_superpixel[i,1])
 		for j in range(8):
-			n1=int(superpixel_neighbor[s1-1,j])
-			n2=int(superpixel_neighbor[s2-1,j])
+			n1=int(superpixel_neighbor[s1,j])
+			n2=int(superpixel_neighbor[s2,j])
 			if n1==0 or  n2==0:
 				continue;
 
