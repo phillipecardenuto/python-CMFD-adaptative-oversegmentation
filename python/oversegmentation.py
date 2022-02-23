@@ -57,7 +57,7 @@ def oversegmentation(filename):
 	if len(RGBimage.shape) > 2:
 		# Discard alpha layer if exists:
 		if RGBimage.shape[2] >3:
-		     RGBimage = RGBimage[:3]
+		    RGBimage = RGBimage[:,:,:3]
 		grayimage = cv2.cvtColor(RGBimage.astype(np.uint8), cv2.COLOR_RGB2GRAY).astype(np.float64);
 	else:
 		grayimage = RGBimage
@@ -183,7 +183,7 @@ def oversegmentation(filename):
 	der_1st= np.gradient(CC_Sorted)# cv2.filter2D( CC_Sorted, kernel=np.array([[-1],[1]]), ddepth=-1,borderType=cv2.BORDER_REPLICATE);
 	mean_der_1st=np.mean(der_1st);
 	der_2nd= np.gradient(der_1st) #cv2.filter2D(CC_Sorted,kernel=[[-1],[2],[-1]], ddepth=-1, borderType=cv2.BORDER_REPLICATE);
-	TR_B=min(CC_Sorted[der_2nd>mean_der_1st])+1;#%%%%+2
+	TR_B=min(CC_Sorted[der_2nd>mean_der_1st])+1 if len(CC_Sorted[der_2nd>mean_der_1st]) >0 else 1;#%%%%+2
 
 	## %STEP3: Removing blocks with low matched points
 	CC_Square=squareform(CC)>TR_B;
